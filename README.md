@@ -107,8 +107,7 @@ python3 linpeas_auto.py
 
 ```
 
-## 📊 Output Examples 
- <img width="1918" height="719" alt="Screenshot_2026-02-02_08_31_38" src="https://github.com/user-attachments/assets/b58159ec-5ed6-4e4d-b0c3-3257fcb136a4" />
+## 📊 Output Example
 
 <img width="1918" height="749" alt="Screenshot_2026-02-03_02_53_35" src="https://github.com/user-attachments/assets/7d48aea8-acaf-408a-8dfc-72b3ab2634a1" />
 
