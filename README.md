@@ -107,25 +107,10 @@ python3 linpeas_auto.py
 
 ```
 
-## 📊 Output Example
+## 📊 Output Examples 
+ <img width="1918" height="719" alt="Screenshot_2026-02-02_08_31_38" src="https://github.com/user-attachments/assets/b58159ec-5ed6-4e4d-b0c3-3257fcb136a4" />
 
-==================================================
-LINUX PRIVILEGE ESCALATION REPORT
-Total Findings: 9
-Critical: 3
-High: 6
-
-🚨 CRITICAL: Writable cron directory → /etc/cron.d
-🚨 CRITICAL: Dangerous capability → cap_setuid
-🟠 HIGH: SUID GTFOBin → /usr/bin/find
-🟠 HIGH: Writable PATH directory → /home/user/bin
-
-==================================================
-
-📄 Report saved:
-TXT → /tmp/linpeasauto_report.txt
-JSON → /tmp/linpeasauto_report.json
-
+<img width="1918" height="749" alt="Screenshot_2026-02-03_02_53_35" src="https://github.com/user-attachments/assets/7d48aea8-acaf-408a-8dfc-72b3ab2634a1" />
 
 ---
 
