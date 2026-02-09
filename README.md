@@ -106,7 +106,7 @@ chmod +x linpeas_auto.py
 python3 linpeas_auto.py
 
 ```
-## Output Example :
+### Output Example :
 ==================================================
 LINUX PRIVILEGE ESCALATION REPORT
 ==================================================
@@ -120,11 +120,11 @@ High: 6
 🟠 HIGH: Writable PATH directory → /home/user/bin
 ==================================================
 
-##📄 Report saved:
+###📄 Report saved:
    TXT  → /tmp/linpeasauto_report.txt
    JSON → /tmp/linpeasauto_report.json
 
-## Learning Outcomes
+### Learning Outcomes
 
 -Linux privilege escalation techniques
 -Penetration testing automation
@@ -147,7 +147,7 @@ The author assumes no responsibility for misuse or damage caused by this tool.
 -Respect privacy and data protection laws
 
 
-## 👨‍💻 Author
+### 👨‍💻 Author
 
 **Bittu Kumar**
 B.Tech CSE | Cybersecurity Enthusiast
