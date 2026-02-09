@@ -98,6 +98,59 @@ git clone https://github.com/BittuKumar362/Linux-Privilege-Escalation-Toolkit.gi
 cd Linux-Privilege-Escalation-Toolkit
 chmod +x linpeas_auto.py
 
+## 🚀 Usage
+### Basic Scan
+
+```bash
+python3 linpeas_auto.py
+
+## Output Example :
+==================================================
+LINUX PRIVILEGE ESCALATION REPORT
+==================================================
+Total Findings: 9
+Critical: 3
+High: 6
+
+🚨 CRITICAL: Writable cron directory → /etc/cron.d
+🚨 CRITICAL: Dangerous capability → cap_setuid
+🟠 HIGH: SUID GTFOBin → /usr/bin/find
+🟠 HIGH: Writable PATH directory → /home/user/bin
+==================================================
+
+##📄 Report saved:
+   TXT  → /tmp/linpeasauto_report.txt
+   JSON → /tmp/linpeasauto_report.json
+
+## Learning Outcomes
+
+-Linux privilege escalation techniques
+-Penetration testing automation
+-Red-team enumeration methodologies
+-Secure system configuration auditing
+
+##⚠️ Usage Disclaimer
+
+This tool is intended strictly for educational purposes, authorized security testing, and cybersecurity research only.
+
+❌ Unauthorized use against systems you do not own or have explicit written permission to test is illegal and punishable under cybercrime laws.
+
+The author assumes no responsibility for misuse or damage caused by this tool.
+
+##📜 Ethical Usage Guidelines
+
+-Use only on systems you own or have legal permission to test
+-Follow responsible disclosure practices
+-Do not use for unauthorized exploitation
+-Respect privacy and data protection laws
+
+
+## 👨‍💻 Author
+
+**Bittu Kumar**
+B.Tech CSE | Cybersecurity Enthusiast
+-GitHub: https://github.com/BittuKumar362
+-Linkedin : https://www.linkedin.com/in/bittu-kumar-ab2373339/
 
 
 
