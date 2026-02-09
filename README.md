@@ -1,26 +1,103 @@
-# Linux-Privilege-Escalation-Toolkit
-It is a lightweight Python-based security tool that scans Linux systems for real-world privilege escalation risks and generates clear, actionable reports.
-Features :
-✔ Scans SUID/SGID binaries and filters false positives
-✔ Detects writable SUID binaries (critical privesc risk)
-✔ Identifies GTFOBins-style SUID abuse
-✔ Checks permissions on sensitive files
-✔ Analyzes sudo misconfigurations
-✔ Detects writable root cron directories
-✔ Flags potentially vulnerable kernel versions
-✔ Generates TXT and JSON reports automatically
-DEMO IMAGES :
-Image 1: Scan on a hardened system → 0 findings (secure)
-<img width="1914" height="876" alt="Screenshot from 2026-01-27 08-44-00" src="https://github.com/user-attachments/assets/a1270a4b-9eff-4970-a8ce-f795b7f29fa5" />
+# Linux Privilege Escalation Toolkit — LinPEASAuto
 
-Image 2: Scan on a vulnerable system → privilege escalation detected
-<img width="1914" height="866" alt="Screenshot from 2026-01-27 08-41-55" src="https://github.com/user-attachments/assets/69cfd6f1-24c5-4487-b9f9-e6918bd32895" />
-These screenshots demonstrate real detection, not simulated output.
+An advanced **automated Linux privilege escalation enumeration toolkit**   
+This tool scans a Linux system for **real-world privilege escalation vectors**, identifies **high-risk misconfigurations**, and generates **clear actionable reports**.
 
-TECH STACK:
-Python 3
-Linux internals (permissions, SUID/SGID, cron, sudo)
-OS-level enumeration
-JSON reporting
+---
+
+##  Project Overview
+
+"LinPEASAuto" is a Python-based Linux privilege escalation scanner inspired by **real-world penetration testing workflows, red-team methodologies, and CTF challenges**.
+
+It automates the discovery of common and advanced **local privilege escalation attack paths**, helping security professionals and students identify **system misconfigurations that could lead to root compromise**.
+
+---
+
+## Attack Vectors Covered :
+
+This toolkit enumerates and analyzes the following **Linux Privilege Escalation Vectors**:
+
+### 🔹 1. SUID / SGID Misconfigurations
+- Detection of SUID & SGID binaries  
+- World & group writable SUID binaries  
+- GTFOBins-based exploitation candidates  
+- Custom malicious SUID detection  
+
+---
+
+### 🔹 2. Weak File & Directory Permissions
+- Writable sensitive files (`/etc/passwd`, `/etc/shadow`, `/etc/sudoers`)  
+- Writable system configuration files  
+- World-writable root-owned directories  
+- Writable log & service directories  
+
+---
+
+### 🔹 3. Sudo Misconfiguration Detection
+- `NOPASSWD` sudo rules  
+- Full sudo privileges  
+- Broad sudo permission patterns  
+- Privilege abuse via allowed binaries  
+
+---
+
+### 🔹 4. Cron Job Privilege Escalation
+- Writable root cron directories  
+- Writable cron scripts  
+- Scheduled job abuse detection  
+- Insecure cron configurations  
+
+---
+
+### 🔹 5. Linux Capabilities Abuse
+- Dangerous capabilities (`cap_setuid`, `cap_setgid`)  
+- Powerful filesystem capabilities (`cap_dac_override`, `cap_sys_admin`)  
+- Privilege escalation via misconfigured capabilities  
+- Filtering of legitimate system capabilities  
+
+---
+
+### 🔹 6. PATH Hijacking Vulnerabilities
+- Writable directories inside `$PATH`  
+- Insecure PATH ordering  
+- Binary hijacking detection  
+- User-controlled executable injection  
+
+---
+
+### 🔹 7. Kernel Privilege Escalation Mapping
+- Kernel version detection  
+- Known vulnerable kernel mapping  
+- CVE-based heuristic detection  
+- Exploit exposure identification  
+
+---
+
+### 🔹 8. NFS Misconfiguration Detection
+- Writable exported NFS shares  
+- Root squash misconfiguration  
+- Insecure NFS mount permissions  
+- Network privilege escalation vectors  
+
+---
+
+## 🛠 Tech Stack
+
+- Python 3  
+- Linux System Commands  
+- OS Permission Enumeration  
+- JSON & Text Reporting  
+- Security Enumeration Automation  
+
+---
+
+## ⚙️ Installation
+
+```bash
+git clone https://github.com/BittuKumar362/Linux-Privilege-Escalation-Toolkit.git
+cd Linux-Privilege-Escalation-Toolkit
+chmod +x linpeas_auto.py
+
+
 
 
