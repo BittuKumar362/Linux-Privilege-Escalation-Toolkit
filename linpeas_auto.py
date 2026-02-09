@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 import subprocess
 import os
@@ -12,7 +13,7 @@ class LinPEASAuto:
         self.findings = []
 
     # ---------------- HELPER ----------------
-    def run(self, cmd, timeout=15):
+    def run(self, cmd, timeout=20):
         try:
             p = subprocess.run(
                 cmd,
@@ -42,20 +43,17 @@ class LinPEASAuto:
             except:
                 continue
 
-            # Ignore directories and non-regular files
             if not stat.S_ISREG(st.st_mode):
                 continue
 
             name = os.path.basename(p)
 
-            # CRITICAL: world/group writable SUID binary
             if (st.st_mode & stat.S_IWOTH) or (st.st_mode & stat.S_IWGRP):
                 self.critical += 1
                 self.findings.append(
                     f"🚨 CRITICAL: World/Group-writable SUID binary → {p}"
                 )
 
-            # HIGH: GTFOBins SUID binary
             elif name in gtfobins:
                 self.high += 1
                 self.findings.append(
@@ -110,6 +108,47 @@ class LinPEASAuto:
                 "🟠 HIGH: Broad sudo permissions"
             )
 
+    # ---------------- CAPABILITIES ----------------
+    def scan_capabilities(self):
+        print("[+] Scanning Linux capabilities...")
+
+        if not self.run("which getcap"):
+            return
+
+        out = self.run("getcap -r / 2>/dev/null")
+        if not out:
+            return
+
+        critical_caps = ["cap_setuid", "cap_setgid"]
+        high_caps = ["cap_sys_admin", "cap_dac_override", "cap_dac_read_search"]
+
+        allowed_binaries = {
+            "ping", "ping6", "traceroute", "traceroute6",
+            "mtr", "mtr-packet", "snap-confine", "gst-ptp-helper"
+        }
+
+        for line in out.splitlines():
+            if "=" not in line:
+                continue
+
+            path, caps = line.split("=", 1)
+            binary = os.path.basename(path.strip())
+
+            if binary in allowed_binaries:
+                continue
+
+            if any(cap in caps for cap in critical_caps):
+                self.critical += 1
+                self.findings.append(
+                    f"🚨 CRITICAL: Privilege-escalation capability → {line}"
+                )
+
+            elif any(cap in caps for cap in high_caps):
+                self.high += 1
+                self.findings.append(
+                    f"🟠 HIGH: Dangerous capability requires review → {line}"
+                )
+
     # ---------------- CRON ----------------
     def scan_cron(self):
         print("[+] Scanning cron directories...")
@@ -136,12 +175,102 @@ class LinPEASAuto:
                     f"🚨 CRITICAL: Writable root cron directory → {d}"
                 )
 
-    # ---------------- KERNEL ----------------
+    # ---------------- PATH Privilege Escalation ----------------
+    def scan_path(self):
+        print("[+] Checking PATH for privilege escalation risks...")
+
+        path = os.environ.get("PATH", "")
+        if not path:
+            return
+
+        paths = path.split(":")
+
+        for p in paths:
+            if p == ".":
+                self.critical += 1
+                self.findings.append(
+                    "🚨 CRITICAL: Current directory (.) present in PATH"
+                )
+                continue
+
+            if not os.path.isdir(p):
+                continue
+
+            try:
+                st = os.stat(p)
+            except:
+                continue
+
+            # World-writable PATH directory
+            if st.st_mode & stat.S_IWOTH:
+                self.critical += 1
+                self.findings.append(
+                    f"🚨 CRITICAL: World-writable directory in PATH → {p}"
+                )
+
+            # Group-writable PATH directory
+            elif st.st_mode & stat.S_IWGRP:
+                self.high += 1
+                self.findings.append(
+                    f"🟠 HIGH: Group-writable directory in PATH → {p}"
+                )
+
+    # ---------------- NFS ----------------
+    def scan_nfs(self):
+        print("[+] Checking NFS exports...")
+
+        # If NFS exports file does not exist, exit safely
+        if not os.path.isfile("/etc/exports"):
+            return
+
+        try:
+            with open("/etc/exports", "r") as f:
+                exports = f.read()
+        except:
+            return
+
+        for line in exports.splitlines():
+            line = line.strip()
+
+            # Skip empty lines and comments
+            if not line or line.startswith("#"):
+                continue
+
+            # CRITICAL: no_root_squash
+            if "no_root_squash" in line:
+                self.critical += 1
+                self.findings.append(
+                    f"🚨 CRITICAL: NFS export with no_root_squash → {line}"
+                )
+
+            # HIGH: broad writable export
+            elif "(rw" in line and "*" in line:
+                self.high += 1
+                self.findings.append(
+                    f"🟠 HIGH: Broad writable NFS export → {line}"
+                )
+
+    
+        # ---------------- KERNEL ----------------
     def scan_kernel(self):
         print("[+] Checking kernel version...")
         kernel = platform.release()
 
-        vulnerable_versions = ["4.4", "4.8", "5.3"]
+        vulnerable_versions = [
+            "2.6",     # very old kernels
+            "3.13",    # overlayfs
+            "3.16",
+            "4.4",     # dirty cow, overlayfs
+            "4.8",
+            "5.3",     # dirty cow variants
+            "5.10",    # dirty pipe
+            "5.11",
+            "5.12",
+            "5.13",
+            "5.14",
+            "5.15"
+        ]
+
         if any(v in kernel for v in vulnerable_versions):
             self.high += 1
             self.findings.append(
@@ -199,7 +328,11 @@ if __name__ == "__main__":
     scanner.scan_suid_sgid()
     scanner.scan_weak_permissions()
     scanner.scan_sudo()
+    scanner.scan_capabilities()
     scanner.scan_cron()
+    scanner.scan_path()
+    scanner.scan_nfs()
     scanner.scan_kernel()
     scanner.report()
     scanner.save_report()
+
