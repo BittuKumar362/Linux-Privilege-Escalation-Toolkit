@@ -93,17 +93,19 @@ This toolkit enumerates and analyzes the following **Linux Privilege Escalation 
 
 ## ⚙️ Installation
 
-``bash
+```bash
 git clone https://github.com/BittuKumar362/Linux-Privilege-Escalation-Toolkit.git
 cd Linux-Privilege-Escalation-Toolkit
-chmod +x linpeas_auto.py 
+chmod +x linpeas_auto.py
+```
 
 ## 🚀 Usage
 ### Basic Scan
 
-``bash
+```bash
 python3 linpeas_auto.py
 
+```
 ## Output Example :
 ==================================================
 LINUX PRIVILEGE ESCALATION REPORT
