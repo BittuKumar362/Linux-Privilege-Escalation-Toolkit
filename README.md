@@ -96,7 +96,8 @@ This toolkit enumerates and analyzes the following **Linux Privilege Escalation 
 ```bash
 git clone https://github.com/BittuKumar362/Linux-Privilege-Escalation-Toolkit.git
 cd Linux-Privilege-Escalation-Toolkit
-chmod +x linpeas_auto.py
+chmod +x install.sh
+./install.sh
 ```
 
 ## 🚀 Usage
