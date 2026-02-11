@@ -96,10 +96,11 @@ LinPEASAuto includes an integrated Mitigation Engine that provides security hard
 
 Instead of only reporting privilege escalation risks, the tool also suggests how to fix them, enabling:
 
-• Secure system hardening
-• Rapid vulnerability remediation
-• Defensive security learning
-• Blue team operational support
+- Secure system hardening
+- Rapid vulnerability remediation
+- Defensive security learning
+- Blue team operational support
+
 ---
 
 ## 🛠 Tech Stack
