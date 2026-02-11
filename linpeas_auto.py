@@ -1,4 +1,5 @@
 
+
 #!/usr/bin/env python3
 import subprocess
 import os
@@ -13,7 +14,7 @@ class LinPEASAuto:
         self.findings = []
 
     # ---------------- HELPER ----------------
-    def run(self, cmd, timeout=20):
+    def run(self, cmd, timeout=25):
         try:
             p = subprocess.run(
                 cmd,
@@ -26,6 +27,21 @@ class LinPEASAuto:
             return p.stdout.strip()
         except subprocess.TimeoutExpired:
             return ""
+
+    # ---------------- MITIGATION ENGINE ----------------
+    def mitigate(self, issue, target):
+        fixes = {
+            "suid_writable": f"chmod 755 {target} && chown root:root {target}",
+            "suid_gtfobin": f"chmod u-s {target}",
+            "weak_sensitive": f"chmod 640 {target} && chown root:root {target}",
+            "sudo_nopasswd": "Edit /etc/sudoers and remove NOPASSWD entries",
+            "capability": f"setcap -r {target}",
+            "cron_writable": f"chmod 755 {target} && chown root:root {target}",
+            "path_writable": f"chmod 755 {target}",
+            "nfs_noroot": "Remove no_root_squash from /etc/exports and reload NFS",
+            "kernel": "Apply latest security patches / upgrade kernel"
+        }
+        return fixes.get(issue, "Manual review required")
 
     # ---------------- SUID / SGID ----------------
     def scan_suid_sgid(self):
@@ -50,17 +66,19 @@ class LinPEASAuto:
 
             if (st.st_mode & stat.S_IWOTH) or (st.st_mode & stat.S_IWGRP):
                 self.critical += 1
-                self.findings.append(
-                    f"🚨 CRITICAL: World/Group-writable SUID binary → {p}"
-                )
+                self.findings.append({
+                    "severity": "CRITICAL",
+                    "issue": f"World/Group-writable SUID binary → {p}",
+                    "mitigation": self.mitigate("suid_writable", p)
+                })
 
-            elif name in gtfobins:
+            elif any(name.startswith(b) for b in gtfobins):
                 self.high += 1
-                self.findings.append(
-                    f"🟠 HIGH: SUID GTFOBin → {p}"
-                )
-
-        print(f"    Checked {len(paths)} SUID/SGID entries")
+                self.findings.append({
+                    "severity": "HIGH",
+                    "issue": f"SUID GTFOBin → {p}",
+                    "mitigation": self.mitigate("suid_gtfobin", p)
+                })
 
     # ---------------- WEAK FILE PERMISSIONS ----------------
     def scan_weak_permissions(self):
@@ -78,9 +96,11 @@ class LinPEASAuto:
 
             if (st.st_mode & stat.S_IWOTH) or (st.st_mode & stat.S_IWGRP):
                 self.critical += 1
-                self.findings.append(
-                    f"🚨 CRITICAL: Writable sensitive file → {f}"
-                )
+                self.findings.append({
+                    "severity": "CRITICAL",
+                    "issue": f"Writable sensitive file → {f}",
+                    "mitigation": self.mitigate("weak_sensitive", f)
+                })
 
     # ---------------- SUDO ----------------
     def scan_sudo(self):
@@ -92,21 +112,19 @@ class LinPEASAuto:
 
         if "NOPASSWD: ALL" in out:
             self.critical += 1
-            self.findings.append(
-                "🚨 CRITICAL: Full sudo access (NOPASSWD: ALL)"
-            )
+            self.findings.append({
+                "severity": "CRITICAL",
+                "issue": "Full sudo access (NOPASSWD: ALL)",
+                "mitigation": self.mitigate("sudo_nopasswd", "")
+            })
 
         elif "NOPASSWD" in out:
             self.high += 1
-            self.findings.append(
-                "🟠 HIGH: sudo NOPASSWD command allowed"
-            )
-
-        elif "(ALL) ALL" in out:
-            self.high += 1
-            self.findings.append(
-                "🟠 HIGH: Broad sudo permissions"
-            )
+            self.findings.append({
+                "severity": "HIGH",
+                "issue": "sudo NOPASSWD command allowed",
+                "mitigation": self.mitigate("sudo_nopasswd", "")
+            })
 
     # ---------------- CAPABILITIES ----------------
     def scan_capabilities(self):
@@ -120,45 +138,39 @@ class LinPEASAuto:
             return
 
         critical_caps = ["cap_setuid", "cap_setgid"]
-        high_caps = ["cap_sys_admin", "cap_dac_override", "cap_dac_read_search"]
-
+        high_caps = ["cap_sys_admin", "cap_dac_override"]
+        
         allowed_binaries = {
-            "ping", "ping6", "traceroute", "traceroute6",
-            "mtr", "mtr-packet", "snap-confine", "gst-ptp-helper"
-        }
+    "snap-confine", "ping", "ping6", "traceroute", "traceroute6",
+    "mtr", "mtr-packet", "mount", "fusermount3"
+}
 
         for line in out.splitlines():
             if "=" not in line:
                 continue
 
             path, caps = line.split("=", 1)
-            binary = os.path.basename(path.strip())
-
-            if binary in allowed_binaries:
-                continue
 
             if any(cap in caps for cap in critical_caps):
                 self.critical += 1
-                self.findings.append(
-                    f"🚨 CRITICAL: Privilege-escalation capability → {line}"
-                )
+                self.findings.append({
+                    "severity": "CRITICAL",
+                    "issue": f"Dangerous capability → {line}",
+                    "mitigation": self.mitigate("capability", path.strip())
+                })
 
             elif any(cap in caps for cap in high_caps):
                 self.high += 1
-                self.findings.append(
-                    f"🟠 HIGH: Dangerous capability requires review → {line}"
-                )
+                self.findings.append({
+                    "severity": "HIGH",
+                    "issue": f"Suspicious capability → {line}",
+                    "mitigation": self.mitigate("capability", path.strip())
+                })
 
     # ---------------- CRON ----------------
     def scan_cron(self):
         print("[+] Scanning cron directories...")
-        cron_dirs = [
-            "/etc/cron.d",
-            "/etc/cron.daily",
-            "/etc/cron.hourly",
-            "/etc/cron.weekly",
-            "/etc/cron.monthly"
-        ]
+        cron_dirs = ["/etc/cron.d", "/etc/cron.daily", "/etc/cron.hourly"]
 
         for d in cron_dirs:
             if not os.path.isdir(d):
@@ -171,156 +183,126 @@ class LinPEASAuto:
 
             if (st.st_mode & stat.S_IWOTH) or (st.st_mode & stat.S_IWGRP):
                 self.critical += 1
-                self.findings.append(
-                    f"🚨 CRITICAL: Writable root cron directory → {d}"
-                )
+                self.findings.append({
+                    "severity": "CRITICAL",
+                    "issue": f"Writable root cron directory → {d}",
+                    "mitigation": self.mitigate("cron_writable", d)
+                })
 
-    # ---------------- PATH Privilege Escalation ----------------
+    # ---------------- PATH ----------------
     def scan_path(self):
-        print("[+] Checking PATH for privilege escalation risks...")
+        print("[+] Checking PATH environment...")
 
-        path = os.environ.get("PATH", "")
-        if not path:
-            return
-
-        paths = path.split(":")
-
-        for p in paths:
+        for p in os.environ.get("PATH", "").split(":"):
             if p == ".":
                 self.critical += 1
-                self.findings.append(
-                    "🚨 CRITICAL: Current directory (.) present in PATH"
-                )
-                continue
+                self.findings.append({
+                    "severity": "CRITICAL",
+                    "issue": "Current directory (.) in PATH",
+                    "mitigation": "Remove . from PATH variable"
+                })
+            elif os.path.isdir(p):
+                try:
+                    st = os.stat(p)
+                except:
+                    continue
 
-            if not os.path.isdir(p):
-                continue
-
-            try:
-                st = os.stat(p)
-            except:
-                continue
-
-            # World-writable PATH directory
-            if st.st_mode & stat.S_IWOTH:
-                self.critical += 1
-                self.findings.append(
-                    f"🚨 CRITICAL: World-writable directory in PATH → {p}"
-                )
-
-            # Group-writable PATH directory
-            elif st.st_mode & stat.S_IWGRP:
-                self.high += 1
-                self.findings.append(
-                    f"🟠 HIGH: Group-writable directory in PATH → {p}"
-                )
+                if st.st_mode & stat.S_IWOTH:
+                    self.critical += 1
+                    self.findings.append({
+                        "severity": "CRITICAL",
+                        "issue": f"World-writable PATH directory → {p}",
+                        "mitigation": self.mitigate("path_writable", p)
+                    })
 
     # ---------------- NFS ----------------
     def scan_nfs(self):
         print("[+] Checking NFS exports...")
 
-        # If NFS exports file does not exist, exit safely
         if not os.path.isfile("/etc/exports"):
             return
 
-        try:
-            with open("/etc/exports", "r") as f:
-                exports = f.read()
-        except:
-            return
+        with open("/etc/exports") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
 
-        for line in exports.splitlines():
-            line = line.strip()
+                if "no_root_squash" in line:
+                    self.critical += 1
+                    self.findings.append({
+                        "severity": "CRITICAL",
+                        "issue": f"NFS no_root_squash → {line}",
+                        "mitigation": self.mitigate("nfs_noroot", "")
+                    })
 
-            # Skip empty lines and comments
-            if not line or line.startswith("#"):
-                continue
-
-            # CRITICAL: no_root_squash
-            if "no_root_squash" in line:
-                self.critical += 1
-                self.findings.append(
-                    f"🚨 CRITICAL: NFS export with no_root_squash → {line}"
-                )
-
-            # HIGH: broad writable export
-            elif "(rw" in line and "*" in line:
-                self.high += 1
-                self.findings.append(
-                    f"🟠 HIGH: Broad writable NFS export → {line}"
-                )
-
-    
-        # ---------------- KERNEL ----------------
+     # ---------------- KERNEL ----------------
     def scan_kernel(self):
         print("[+] Checking kernel version...")
-        kernel = platform.release()
 
-        vulnerable_versions = [
-            "2.6",     # very old kernels
-            "3.13",    # overlayfs
-            "3.16",
-            "4.4",     # dirty cow, overlayfs
-            "4.8",
-            "5.3",     # dirty cow variants
-            "5.10",    # dirty pipe
-            "5.11",
-            "5.12",
-            "5.13",
-            "5.14",
-            "5.15"
-        ]
+        kernel_full = platform.release()
+        kernel_short = ".".join(kernel_full.split(".")[:2])
 
-        if any(v in kernel for v in vulnerable_versions):
+        vuln_kernels = {
+            "4.4":  ("CVE-2016-5195", "Dirty COW — race condition in copy-on-write"),
+            "4.8":  ("CVE-2017-1000112", "OverlayFS Privilege Escalation"),
+            "5.3":  ("CVE-2021-3493", "OverlayFS Local Privilege Escalation"),
+            "5.8":  ("CVE-2022-0847", "Dirty Pipe"),
+            "5.9":  ("CVE-2022-0847", "Dirty Pipe"),
+            "5.10": ("CVE-2022-0847", "Dirty Pipe"),
+            "5.11": ("CVE-2022-0847", "Dirty Pipe"),
+            "5.12": ("CVE-2022-0847", "Dirty Pipe"),
+            "5.13": ("CVE-2022-0847", "Dirty Pipe"),
+            "5.14": ("Multiple CVEs", "io_uring Privilege Escalation"),
+            "5.15": ("Multiple CVEs", "io_uring Privilege Escalation"),
+        }
+
+        if kernel_short in vuln_kernels:
+            cve, desc = vuln_kernels[kernel_short]
             self.high += 1
-            self.findings.append(
-                f"🟠 HIGH: Potentially vulnerable kernel → {kernel}"
-            )
+            self.findings.append({
+                "severity": "HIGH",
+                "issue": f"Vulnerable kernel detected → {kernel_full}",
+                "cve": cve,
+                "description": desc,
+                "mitigation": "Apply latest kernel security updates or upgrade system"
+            })
 
     # ---------------- REPORT ----------------
     def report(self):
-        print("\n" + "=" * 50)
-        print("LINUX PRIVILEGE ESCALATION REPORT")
-        print("=" * 50)
-        print(f"Total Findings: {len(self.findings)}")
+        print("\n" + "=" * 60)
+        print("LINUX PRIVILEGE ESCALATION REPORT + MITIGATIONS")
+        print("=" * 60)
+
         print(f"Critical: {self.critical}")
-        print(f"High: {self.high}\n")
+        print(f"High    : {self.high}")
+        print(f"Total   : {len(self.findings)}\n")
 
         if not self.findings:
             print("✅ SYSTEM APPEARS SECURE")
         else:
             for f in self.findings:
-                print(f)
-
-        print("=" * 50)
+                print(f"[{f['severity']}] {f['issue']}")
+                print(f"    Fix → {f['mitigation']}\n")
 
     # ---------------- SAVE REPORT ----------------
     def save_report(self, path="/tmp/linpeasauto_report"):
         txt_file = path + ".txt"
         json_file = path + ".json"
 
-        data = {
-            "critical": self.critical,
-            "high": self.high,
-            "total": len(self.findings),
-            "findings": self.findings
-        }
-
         with open(txt_file, "w") as f:
-            f.write("LINUX PRIVILEGE ESCALATION REPORT\n")
-            f.write("=" * 50 + "\n")
-            f.write(f"Critical: {self.critical}\n")
-            f.write(f"High: {self.high}\n")
-            f.write(f"Total Findings: {len(self.findings)}\n\n")
             for item in self.findings:
-                f.write(item + "\n")
+                f.write(f"[{item['severity']}] {item['issue']}\n")
+                f.write(f"    Fix → {item['mitigation']}\n\n")
 
         with open(json_file, "w") as f:
-            json.dump(data, f, indent=4)
-
+            json.dump(self.findings, f, indent=4)
+        
         print("\n📄 Report saved:")
         print(f"   TXT  → {txt_file}")
         print(f"   JSON → {json_file}")
+
+        
 
 # ---------------- MAIN ----------------
 if __name__ == "__main__":
@@ -335,4 +317,3 @@ if __name__ == "__main__":
     scanner.scan_kernel()
     scanner.report()
     scanner.save_report()
-
