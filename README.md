@@ -1,7 +1,7 @@
 # Linux Privilege Escalation Toolkit — LinPEASAuto
 
 An advanced **automated Linux privilege escalation enumeration toolkit**   
-This tool scans a Linux system for **real-world privilege escalation vectors**, identifies **high-risk misconfigurations**, and generates **clear actionable reports**.
+This tool scans a Linux system for **real-world privilege escalation vectors**, identifies **high-risk misconfigurations**, generates **clear actionable reports** and provides **clear mitigation steps** to secure the system.
 
 ---
 
@@ -9,7 +9,10 @@ This tool scans a Linux system for **real-world privilege escalation vectors**, 
 
 "LinPEASAuto" is a Python-based Linux privilege escalation scanner inspired by **real-world penetration testing workflows, red-team methodologies, and CTF challenges**.
 
-It automates the discovery of common and advanced **local privilege escalation attack paths**, helping security professionals and students identify **system misconfigurations that could lead to root compromise**.
+It automates the discovery of common and advanced local privilege escalation attack paths and includes a built-in mitigation engine that provides actionable remediation guidance to securely harden vulnerable Linux systems.
+
+This dual offensive + defensive approach makes LinPEASAuto useful not only for penetration testers and red-teamers, but also for blue teams, system administrators, and cybersecurity students focused on secure system configuration and hardening.
+
 
 ---
 
@@ -77,9 +80,26 @@ This toolkit enumerates and analyzes the following **Linux Privilege Escalation 
 - Writable exported NFS shares  
 - Root squash misconfiguration  
 - Insecure NFS mount permissions  
-- Network privilege escalation vectors  
+- Network privilege escalation vectors
+---
+
+ ### 🔹 9. Automated Mitigation & Hardening Guidance
+- Security remediation commands
+- System hardening recommendations
+- Defensive configuration guidance
+- Secure baseline enforcement suggestions
 
 ---
+
+## Mitigation Engine 
+LinPEASAuto includes an integrated Mitigation Engine that provides security hardening recommendations and remediation commands for every detected vulnerability.
+
+Instead of only reporting privilege escalation risks, the tool also suggests how to fix them, enabling:
+
+• Secure system hardening
+• Rapid vulnerability remediation
+• Defensive security learning
+• Blue team operational support
 
 ## 🛠 Tech Stack
 
@@ -109,8 +129,8 @@ python3 linpeas_auto.py
 ```
 
 ## 📊 Output Example
+<img width="1918" height="658" alt="Screenshot_2026-02-11_15_39_23" src="https://github.com/user-attachments/assets/f2c9da80-211a-4a6f-ac60-91f06bec48df" />
 
-<img width="1918" height="749" alt="Screenshot_2026-02-03_02_53_35" src="https://github.com/user-attachments/assets/7d48aea8-acaf-408a-8dfc-72b3ab2634a1" />
 
 ---
 
