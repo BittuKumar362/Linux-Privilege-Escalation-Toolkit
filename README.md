@@ -100,6 +100,7 @@ Instead of only reporting privilege escalation risks, the tool also suggests how
 • Rapid vulnerability remediation
 • Defensive security learning
 • Blue team operational support
+---
 
 ## 🛠 Tech Stack
 
