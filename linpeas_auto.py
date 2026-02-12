@@ -127,7 +127,7 @@ class LinPEASAuto:
             })
 
     # ---------------- CAPABILITIES ----------------
-    def scan_capabilities(self):
+def scan_capabilities(self):
         print("[+] Scanning Linux capabilities...")
 
         if not self.run("which getcap"):
@@ -138,36 +138,35 @@ class LinPEASAuto:
             return
 
         critical_caps = ["cap_setuid", "cap_setgid"]
-        high_caps = ["cap_sys_admin", "cap_dac_override"]
-        
+        high_caps = ["cap_sys_admin", "cap_dac_override", "cap_dac_read_search"]
+
         allowed_binaries = {
-    "snap-confine", "ping", "ping6", "traceroute", "traceroute6",
-    "mtr", "mtr-packet", "mount", "fusermount3"
-}
+            "ping", "ping6", "traceroute", "traceroute6",
+            "mtr", "mtr-packet", "snap-confine", "gst-ptp-helper"
+        }
 
         for line in out.splitlines():
             if "=" not in line:
                 continue
 
             path, caps = line.split("=", 1)
+            binary = os.path.basename(path.strip())
+
+            if binary in allowed_binaries:
+                continue
 
             if any(cap in caps for cap in critical_caps):
                 self.critical += 1
-                self.findings.append({
-                    "severity": "CRITICAL",
-                    "issue": f"Dangerous capability → {line}",
-                    "mitigation": self.mitigate("capability", path.strip())
-                })
+                self.findings.append(
+                    f"🚨 CRITICAL: Privilege-escalation capability → {line}"
+                )
 
             elif any(cap in caps for cap in high_caps):
                 self.high += 1
-                self.findings.append({
-                    "severity": "HIGH",
-                    "issue": f"Suspicious capability → {line}",
-                    "mitigation": self.mitigate("capability", path.strip())
-                })
-
-    # ---------------- CRON ----------------
+                self.findings.append(
+                    f"🟠 HIGH: Dangerous capability requires review → {line}"
+                )
+  # ---------------- CRON ----------------
     def scan_cron(self):
         print("[+] Scanning cron directories...")
         cron_dirs = ["/etc/cron.d", "/etc/cron.daily", "/etc/cron.hourly"]
