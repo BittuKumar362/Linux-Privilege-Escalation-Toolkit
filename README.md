@@ -131,7 +131,12 @@ python3 linpeas_auto.py
 ```
 
 ## 📊 Output Example
-<img width="1918" height="658" alt="Screenshot_2026-02-11_15_39_23" src="https://github.com/user-attachments/assets/f2c9da80-211a-4a6f-ac60-91f06bec48df" />
+
+<img width="1918" height="867" alt="Screenshot from 2026-02-12 05-58-09" src="https://github.com/user-attachments/assets/8a897638-77a6-4df5-a92a-4f2c90d17d58" />
+
+<img width="1918" height="862" alt="Screenshot from 2026-02-12 05-57-57" src="https://github.com/user-attachments/assets/70bf9b65-d7ac-4b9d-be82-5dc27345d14a" />
+
+
 
 
 ---
