@@ -1,5 +1,4 @@
 
-
 #!/usr/bin/env python3
 import subprocess
 import os
@@ -126,8 +125,8 @@ class LinPEASAuto:
                 "mitigation": self.mitigate("sudo_nopasswd", "")
             })
 
-    # ---------------- CAPABILITIES ----------------
-def scan_capabilities(self):
+    # ---------------- CAPABILITIES ---------------
+    def scan_capabilities(self):
         print("[+] Scanning Linux capabilities...")
 
         if not self.run("which getcap"):
@@ -166,7 +165,9 @@ def scan_capabilities(self):
                 self.findings.append(
                     f"🟠 HIGH: Dangerous capability requires review → {line}"
                 )
-  # ---------------- CRON ----------------
+
+
+    # ---------------- CRON ----------------
     def scan_cron(self):
         print("[+] Scanning cron directories...")
         cron_dirs = ["/etc/cron.d", "/etc/cron.daily", "/etc/cron.hourly"]
