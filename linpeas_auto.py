@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 import subprocess
 import os
@@ -157,13 +156,13 @@ class LinPEASAuto:
             if any(cap in caps for cap in critical_caps):
                 self.critical += 1
                 self.findings.append(
-                    f"🚨 CRITICAL: Privilege-escalation capability → {line}"
+                    f" CRITICAL: Privilege-escalation capability → {line}"
                 )
 
             elif any(cap in caps for cap in high_caps):
                 self.high += 1
                 self.findings.append(
-                    f"🟠 HIGH: Dangerous capability requires review → {line}"
+                    f" HIGH: Dangerous capability requires review → {line}"
                 )
 
 
@@ -188,32 +187,46 @@ class LinPEASAuto:
                     "issue": f"Writable root cron directory → {d}",
                     "mitigation": self.mitigate("cron_writable", d)
                 })
-
-    # ---------------- PATH ----------------
+# ---------------- PATH Privilege Escalation ----------------
     def scan_path(self):
-        print("[+] Checking PATH environment...")
+        print("[+] Checking PATH for privilege escalation risks...")
 
-        for p in os.environ.get("PATH", "").split(":"):
+        path = os.environ.get("PATH", "")
+        if not path:
+            return
+
+        paths = path.split(":")
+
+        for p in paths:
             if p == ".":
                 self.critical += 1
-                self.findings.append({
-                    "severity": "CRITICAL",
-                    "issue": "Current directory (.) in PATH",
-                    "mitigation": "Remove . from PATH variable"
-                })
-            elif os.path.isdir(p):
-                try:
-                    st = os.stat(p)
-                except:
-                    continue
+                self.findings.append(
+                    " CRITICAL: Current directory (.) present in PATH"
+                )
+                continue
 
-                if st.st_mode & stat.S_IWOTH:
-                    self.critical += 1
-                    self.findings.append({
-                        "severity": "CRITICAL",
-                        "issue": f"World-writable PATH directory → {p}",
-                        "mitigation": self.mitigate("path_writable", p)
-                    })
+            if not os.path.isdir(p):
+                continue
+
+            try:
+                st = os.stat(p)
+            except:
+                continue
+
+            # World-writable PATH directory
+            if st.st_mode & stat.S_IWOTH:
+                self.critical += 1
+                self.findings.append(
+                    f" CRITICAL: World-writable directory in PATH → {p}"
+                )
+
+            # Group-writable PATH directory
+            elif st.st_mode & stat.S_IWGRP:
+                self.high += 1
+                self.findings.append(
+                    f" HIGH: Group-writable directory in PATH → {p}"
+                )
+
 
     # ---------------- NFS ----------------
     def scan_nfs(self):
