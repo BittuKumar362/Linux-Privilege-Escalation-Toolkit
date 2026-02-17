@@ -16,6 +16,22 @@ This dual offensive + defensive approach makes LinPEASAuto useful not only for p
 
 ---
 
+
+## Core Features
+
+- Automated Privilege Escalation Enumeration
+- Kernel Vulnerability Detection + CVE Mapping
+- SUID / SGID Binary Analysis
+- Linux Capabilities Exploitation Detection
+- Weak File Permission Scanner
+- Cron Job Privilege Escalation Checks
+- PATH Environment Hijacking Detection
+- NFS Share Misconfiguration Detection
+- Sudo Misconfiguration Scanner
+- Mitigation Suggestions Engine
+- JSON + TXT Report Generation
+- Professional Enterprise-Grade Output
+
 ## Attack Vectors Covered :
 
 This toolkit enumerates and analyzes the following **Linux Privilege Escalation Vectors**:
@@ -129,6 +145,9 @@ chmod +x install.sh
 python3 linpeas_auto.py
 
 ```
+## Output Files
+/tmp/linpeasauto_report.txt
+/tmp/linpeasauto_report.json
 
 ## 📊 Output Example
 
