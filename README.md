@@ -52,7 +52,7 @@ This toolkit enumerates and analyzes the following **Linux Privilege Escalation 
 
 ---
 
-### 🔹 5. Linux Capabilities Abuse
+### 🔹 5. Linux Capabilities Detection 
 - Dangerous capabilities (`cap_setuid`, `cap_setgid`)  
 - Powerful filesystem capabilities (`cap_dac_override`, `cap_sys_admin`)  
 - Privilege escalation via misconfigured capabilities  
