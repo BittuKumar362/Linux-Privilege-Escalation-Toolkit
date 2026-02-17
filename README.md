@@ -17,7 +17,7 @@ This dual offensive + defensive approach makes LinPEASAuto useful not only for p
 ---
 
 
-## Core Features
+##  Features
 
 - Automated Privilege Escalation Enumeration
 - Kernel Vulnerability Detection + CVE Mapping
@@ -146,8 +146,8 @@ python3 linpeas_auto.py
 
 ```
 ## Output Files
-/tmp/linpeasauto_report.txt
-/tmp/linpeasauto_report.json
+- /tmp/linpeasauto_report.txt
+- /tmp/linpeasauto_report.json
 
 ## 📊 Output Example
 
