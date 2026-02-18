@@ -157,13 +157,13 @@ class LinPEASAuto:
             if any(cap in caps for cap in critical_caps):
                 self.critical += 1
                 self.findings.append(
-                    f"🚨 CRITICAL: Privilege-escalation capability → {line}"
+                    f" CRITICAL: Privilege-escalation capability → {line}"
                 )
 
             elif any(cap in caps for cap in high_caps):
                 self.high += 1
                 self.findings.append(
-                    f"🟠 HIGH: Dangerous capability requires review → {line}"
+                    f" HIGH: Dangerous capability requires review → {line}"
                 )
 
 
@@ -279,7 +279,7 @@ class LinPEASAuto:
         print(f"Total   : {len(self.findings)}\n")
 
         if not self.findings:
-            print("✅ SYSTEM APPEARS SECURE")
+            print(" SYSTEM APPEARS SECURE")
         else:
             for f in self.findings:
                 print(f"[{f['severity']}] {f['issue']}")
@@ -298,7 +298,7 @@ class LinPEASAuto:
         with open(json_file, "w") as f:
             json.dump(self.findings, f, indent=4)
         
-        print("\n📄 Report saved:")
+        print("\n  Report saved:")
         print(f"   TXT  → {txt_file}")
         print(f"   JSON → {json_file}")
 
