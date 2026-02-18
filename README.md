@@ -119,7 +119,7 @@ Instead of only reporting privilege escalation risks, the tool also suggests how
 
 ---
 
-## 🛠 Tech Stack
+##  Tech Stack
 
 - Python 3  
 - Linux System Commands  
@@ -129,7 +129,7 @@ Instead of only reporting privilege escalation risks, the tool also suggests how
 
 ---
 
-## ⚙️ Installation
+##  Installation
 
 ```bash
 git clone https://github.com/BittuKumar362/Linux-Privilege-Escalation-Toolkit.git
@@ -138,7 +138,7 @@ chmod +x install.sh
 ./install.sh
 ```
 
-## 🚀 Usage
+##  Usage
 ### Basic Scan
 
 ```bash
@@ -149,7 +149,7 @@ python3 linpeas_auto.py
 - /tmp/linpeasauto_report.txt
 - /tmp/linpeasauto_report.json
 
-## 📊 Output Example
+##  Output Example
 
 <img width="1918" height="867" alt="Screenshot from 2026-02-12 05-58-09" src="https://github.com/user-attachments/assets/8a897638-77a6-4df5-a92a-4f2c90d17d58" />
 
@@ -160,7 +160,7 @@ python3 linpeas_auto.py
 
 ---
 
-## 🎯 Learning Outcomes
+##  Learning Outcomes
 
 - Linux privilege escalation techniques  
 - Penetration testing automation  
@@ -169,17 +169,17 @@ python3 linpeas_auto.py
 
 ---
 
-## ⚠️ Usage Disclaimer
+##  Usage Disclaimer
 
 This tool is intended **strictly for educational purposes, authorized security testing, and cybersecurity research only.**
 
-❌ Unauthorized use against systems you do not own or have **explicit written permission** to test is illegal and punishable under cybercrime laws.
+Unauthorized use against systems you do not own or have **explicit written permission** to test is illegal and punishable under cybercrime laws.
 
 The author assumes **no responsibility** for misuse or damage caused by this tool.
 
 ---
 
-## 📜 Ethical Usage Guidelines
+##  Ethical Usage Guidelines
 
 - Use only on systems you own or have legal permission to test  
 - Follow responsible disclosure practices  
@@ -188,7 +188,7 @@ The author assumes **no responsibility** for misuse or damage caused by this too
 
 ---
 
-## 👨‍💻 Author
+##  Author
 
 **Bittu Kumar**  
 B.Tech CSE | Cybersecurity Enthusiast  
