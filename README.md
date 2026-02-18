@@ -137,6 +137,8 @@ cd Linux-Privilege-Escalation-Toolkit
 chmod +x install.sh
 ./install.sh
 ```
+<img width="926" height="121" alt="Screenshot_2026-02-18_14_18_35" src="https://github.com/user-attachments/assets/96b2c69e-8cce-465d-b57b-a2dea2adb4e2" />
+
 
 ##  Usage
 ### Basic Scan
